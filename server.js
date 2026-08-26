@@ -11,30 +11,29 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 /**
- * Formats phone numbers to match Paystack's exact API requirements per country.
- * - KES (Kenya): Paystack expects local format ('07XXXXXXXX' or '01XXXXXXXX')
- * - GHS (Ghana): Paystack expects international format ('233XXXXXXXXX')
- * - UGX (Uganda): Paystack expects international format ('256XXXXXXXXX')
+ * Strict Phone Number Formatter:
+ * - KES: Converts '254799801070' -> '0799801070' (Local format required by Paystack M-Pesa)
+ * - GHS: Converts '0241234567' -> '233241234567' (International format)
+ * - UGX: Converts '0771234567' -> '256771234567' (International format)
  */
 function formatPhoneNumber(phone, currency) {
-  let cleaned = phone.toString().trim().replace(/\D/g, ''); // Strip non-digits
+  if (!phone) return '';
+  let cleaned = phone.toString().trim().replace(/\D/g, ''); // Strip all non-digits
 
   if (currency === 'KES') {
-    // Convert 2547XXXXXXXX or 2541XXXXXXXX -> 07XXXXXXXX or 01XXXXXXXX
+    // 12 digits starting with 254 -> Convert 2547... to 07... or 2541... to 01...
     if (cleaned.startsWith('254') && cleaned.length === 12) {
       cleaned = '0' + cleaned.substring(3);
-    }
-    // Convert 7XXXXXXXX or 1XXXXXXXX (9 digits) -> 07XXXXXXXX or 01XXXXXXXX
+    } 
+    // 9 digits missing leading zero (e.g., 799801070) -> Convert to 0799801070
     else if (!cleaned.startsWith('0') && cleaned.length === 9) {
       cleaned = '0' + cleaned;
     }
   } else if (currency === 'GHS') {
-    // Convert 02XXXXXXXX -> 2332XXXXXXXX
     if (cleaned.startsWith('0') && cleaned.length === 10) {
       cleaned = '233' + cleaned.substring(1);
     }
   } else if (currency === 'UGX') {
-    // Convert 07XXXXXXXX -> 2567XXXXXXXX
     if (cleaned.startsWith('0') && cleaned.length === 10) {
       cleaned = '256' + cleaned.substring(1);
     }
@@ -50,7 +49,7 @@ app.post('/api/stk-push', async (req, res) => {
     return res.status(400).json({ status: false, message: 'Missing required parameters.' });
   }
 
-  // Format number based on selected currency rules
+  // Format the phone number string explicitly
   const formattedPhone = formatPhoneNumber(phone, currency);
 
   try {
@@ -58,11 +57,11 @@ app.post('/api/stk-push', async (req, res) => {
       'https://api.paystack.co/charge',
       {
         email: `user_${formattedPhone}@mobile.paystack`,
-        amount: Math.round(parseFloat(amount) * 100), // Convert amount to subunits
+        amount: Math.round(parseFloat(amount) * 100), // Convert to subunit (e.g. Kobo/Pesewas)
         currency: currency,
         reference: reference,
         mobile_money: {
-          phone: formattedPhone,
+          phone: formattedPhone, // MUST pass '0799801070' for Kenya
           provider: provider
         }
       },
