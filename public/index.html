@@ -26,7 +26,7 @@
     <form id="stkForm">
       <div class="form-group">
         <label for="phoneNumbers">Phone Numbers (One per line)</label>
-        <textarea id="phoneNumbers" rows="6" placeholder="254712345678&#10;254722345678" required></textarea>
+        <textarea id="phoneNumbers" rows="6" placeholder="0712345678&#10;254722345678" required></textarea>
       </div>
       <div class="form-group">
         <label for="amount">Amount per Request</label>
@@ -39,9 +39,15 @@
       <div class="form-group">
         <label for="currency">Currency</label>
         <select id="currency">
-          <option value="KES">KES</option>
-          <option value="GHS">GHS</option>
-          <option value="NGN">NGN</option>
+          <option value="KES">KES (Kenya)</option>
+          <option value="GHS">GHS (Ghana)</option>
+          <option value="UGX">UGX (Uganda)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="provider">Provider</label>
+        <select id="provider">
+          <option value="mpesa">M-Pesa</option>
         </select>
       </div>
       <button type="submit" id="submitBtn">Start Bulk STK Push</button>
