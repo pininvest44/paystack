@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bulk STK Push Launcher</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f4f6f8; margin: 0; padding: 2rem; }
+    .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    h2 { margin-top: 0; color: #333; }
+    .form-group { margin-bottom: 1.2rem; }
+    label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: #555; }
+    input, textarea, select { width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+    button { background: #09a5db; color: #fff; border: none; padding: 0.8rem 1.5rem; font-size: 1rem; border-radius: 4px; cursor: pointer; }
+    button:disabled { background: #999; }
+    .log-box { margin-top: 2rem; background: #1e1e1e; color: #00ff66; padding: 1rem; border-radius: 4px; height: 250px; overflow-y: auto; font-family: monospace; font-size: 0.85rem; }
+    .log-entry { margin-bottom: 0.25rem; }
+    .log-success { color: #00ff66; }
+    .log-error { color: #ff5555; }
+    .log-info { color: #8888ff; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Bulk STK Push Sender</h2>
+    <form id="stkForm">
+      <div class="form-group">
+        <label for="phoneNumbers">Phone Numbers (One per line)</label>
+        <textarea id="phoneNumbers" rows="6" placeholder="254712345678&#10;254722345678" required></textarea>
+      </div>
+      <div class="form-group">
+        <label for="amount">Amount per Request</label>
+        <input type="number" id="amount" placeholder="100" required>
+      </div>
+      <div class="form-group">
+        <label for="referencePrefix">Base Reference Prefix</label>
+        <input type="text" id="referencePrefix" placeholder="TXN_BULK" required>
+      </div>
+      <div class="form-group">
+        <label for="currency">Currency</label>
+        <select id="currency">
+          <option value="KES">KES</option>
+          <option value="GHS">GHS</option>
+          <option value="NGN">NGN</option>
+        </select>
+      </div>
+      <button type="submit" id="submitBtn">Start Bulk STK Push</button>
+    </form>
+
+    <h3>Execution Log</h3>
+    <div class="log-box" id="logBox"></div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
