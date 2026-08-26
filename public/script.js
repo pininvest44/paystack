@@ -1,3 +1,31 @@
+const providerMap = {
+  KES: [{ name: 'M-Pesa', value: 'mpesa' }],
+  GHS: [
+    { name: 'MTN Mobile Money', value: 'mtn' },
+    { name: 'Vodafone Cash', value: 'vod' },
+    { name: 'AirtelTigo', value: 'tgo' }
+  ],
+  UGX: [
+    { name: 'MTN Uganda', value: 'mtn' },
+    { name: 'Airtel Uganda', value: 'atl' }
+  ]
+};
+
+// Dynamically update providers drop-down when currency changes
+document.getElementById('currency').addEventListener('change', (e) => {
+  const selectedCurrency = e.target.value;
+  const providerSelect = document.getElementById('provider');
+  providerSelect.innerHTML = '';
+
+  const options = providerMap[selectedCurrency] || [];
+  options.forEach((opt) => {
+    const el = document.createElement('option');
+    el.value = opt.value;
+    el.innerText = opt.name;
+    providerSelect.appendChild(el);
+  });
+});
+
 document.getElementById('stkForm').addEventListener('submit', async (e) => {
   e.preventDefault();
 
@@ -5,6 +33,7 @@ document.getElementById('stkForm').addEventListener('submit', async (e) => {
   const amount = document.getElementById('amount').value;
   const referencePrefix = document.getElementById('referencePrefix').value;
   const currency = document.getElementById('currency').value;
+  const provider = document.getElementById('provider').value;
   const submitBtn = document.getElementById('submitBtn');
   const logBox = document.getElementById('logBox');
 
@@ -12,7 +41,7 @@ document.getElementById('stkForm').addEventListener('submit', async (e) => {
 
   submitBtn.disabled = true;
   logBox.innerHTML = '';
-  appendLog(`[INFO] Processing ${phoneNumbers.length} requests at 30 req/min (2-sec delay between items)...`, 'info');
+  appendLog(`[INFO] Processing ${phoneNumbers.length} requests at 30 req/min limit...`, 'info');
 
   for (let i = 0; i < phoneNumbers.length; i++) {
     const phone = phoneNumbers[i];
@@ -24,7 +53,7 @@ document.getElementById('stkForm').addEventListener('submit', async (e) => {
       const response = await fetch('/api/stk-push', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, amount, reference: uniqueRef, currency })
+        body: JSON.stringify({ phone, amount, reference: uniqueRef, currency, provider })
       });
       const data = await response.json();
 
@@ -37,7 +66,7 @@ document.getElementById('stkForm').addEventListener('submit', async (e) => {
       appendLog(`[ERROR] Network issue on ${phone}: ${err.message}`, 'error');
     }
 
-    // Rate limiter: 2000 ms delay enforces 30 requests/min maximum
+    // Rate limit: 2000 ms delay enforces 30 requests/min maximum
     if (i < phoneNumbers.length - 1) {
       await new Promise(resolve => setTimeout(resolve, 2000));
     }
