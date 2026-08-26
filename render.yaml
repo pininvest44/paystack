@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: paystack-bulk-stk
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: PAYSTACK_SECRET_KEY
+        sync: false
